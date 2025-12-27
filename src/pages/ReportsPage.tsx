@@ -1,4 +1,3 @@
-import React from 'react';
 import { Card, CardHeader, CardContent } from '../components/ui/Card';
 import { Button } from '../components/ui/Button';
 import { 
@@ -20,9 +19,7 @@ import {
   ResponsiveContainer,
   PieChart,
   Pie,
-  Cell,
-  LineChart,
-  Line
+  Cell
 } from 'recharts';
 
 // Dummy data untuk Sales Report
