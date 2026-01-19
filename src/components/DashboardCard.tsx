@@ -22,15 +22,15 @@ export function DashboardCard({
   iconColor = 'text-primary-600',
 }: DashboardCardProps) {
   return (
-    <Card className="p-6 hover:shadow-md transition-shadow">
-      <div className="flex items-start justify-between mb-4">
-        <div className={cn('p-3 rounded-lg', iconBgColor)}>
-          <Icon className={cn('w-6 h-6', iconColor)} />
+    <Card className="p-4 lg:p-6 hover:shadow-md transition-shadow">
+      <div className="flex items-start justify-between mb-3 lg:mb-4">
+        <div className={cn('p-2 lg:p-3 rounded-lg', iconBgColor)}>
+          <Icon className={cn('w-5 h-5 lg:w-6 lg:h-6', iconColor)} />
         </div>
         {change && (
           <span
             className={cn(
-              'text-sm font-medium',
+              'text-xs lg:text-sm font-medium',
               changeType === 'increase' ? 'text-green-600' : 'text-red-600'
             )}
           >
@@ -38,8 +38,8 @@ export function DashboardCard({
           </span>
         )}
       </div>
-      <h3 className="text-gray-600 text-sm mb-1">{title}</h3>
-      <p className="text-2xl font-semibold text-gray-900">{value}</p>
+      <h3 className="text-gray-600 text-xs lg:text-sm mb-1">{title}</h3>
+      <p className="text-lg lg:text-2xl font-semibold text-gray-900">{value}</p>
     </Card>
   );
 }

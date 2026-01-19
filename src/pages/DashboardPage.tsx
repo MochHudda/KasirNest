@@ -12,13 +12,13 @@ export default function DashboardPage() {
   return (
     <div>
       {/* Page Header */}
-      <div className="mb-8">
-        <h1 className="text-2xl font-semibold text-gray-900 mb-2">Dashboard Overview</h1>
-        <p className="text-gray-600">Welcome to your apparel store! Track your fashion business performance.</p>
+      <div className="mb-6 lg:mb-8">
+        <h1 className="text-xl lg:text-2xl font-semibold text-gray-900 mb-2">Dashboard Overview</h1>
+        <p className="text-sm lg:text-base text-gray-600">Welcome to your apparel store! Track your fashion business performance.</p>
       </div>
 
       {/* Stats Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 mb-8">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 lg:gap-6 mb-6 lg:mb-8">
         <DashboardCard
           title="Total Revenue"
           value="Rp 234,567,800"
@@ -58,7 +58,7 @@ export default function DashboardPage() {
       </div>
 
       {/* Charts and Analytics */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+      <div className="grid grid-cols-1 xl:grid-cols-2 gap-4 lg:gap-6 mb-6 lg:mb-8">
         <SalesChart />
         <TopProducts />
       </div>

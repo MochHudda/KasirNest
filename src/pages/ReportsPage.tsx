@@ -75,27 +75,29 @@ export default function ReportsPage() {
   return (
     <div>
       {/* Page Header */}
-      <div className="mb-8">
-        <div className="flex items-center justify-between">
+      <div className="mb-6 lg:mb-8">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
-            <h1 className="text-2xl font-semibold text-gray-900 mb-2">Reports & Analytics</h1>
-            <p className="text-gray-600">Comprehensive business insights for your apparel store</p>
+            <h1 className="text-xl lg:text-2xl font-semibold text-gray-900 mb-2">Reports & Analytics</h1>
+            <p className="text-sm lg:text-base text-gray-600">Comprehensive business insights for your apparel store</p>
           </div>
-          <div className="flex items-center gap-3">
-            <Button variant="outline" icon={Filter}>
-              Filter
+          <div className="flex items-center gap-2 lg:gap-3">
+            <Button variant="outline" icon={Filter} size="sm" className="sm:size-auto">
+              <span className="hidden sm:inline">Filter</span>
+              <span className="sm:hidden">Filter</span>
             </Button>
-            <Button variant="outline" icon={Download}>
-              Export
+            <Button variant="outline" icon={Download} size="sm" className="sm:size-auto">
+              <span className="hidden sm:inline">Export</span>
+              <span className="sm:hidden">Export</span>
             </Button>
           </div>
         </div>
       </div>
 
       {/* Key Metrics */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-6 mb-6 lg:mb-8">
         <Card>
-          <CardContent className="p-6">
+          <CardContent className="p-4 lg:p-6">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-gray-600">Total Revenue</p>
@@ -156,20 +158,20 @@ export default function ReportsPage() {
       </div>
 
       {/* Charts Section */}
-      <div className="grid grid-cols-1 xl:grid-cols-2 gap-6 mb-8">
+      <div className="grid grid-cols-1 xl:grid-cols-2 gap-4 lg:gap-6 mb-6 lg:mb-8">
         {/* Monthly Sales Chart */}
         <Card>
           <CardHeader>
             <div className="flex items-center justify-between">
               <div>
-                <h2 className="text-lg font-semibold text-gray-900">Monthly Sales Performance</h2>
-                <p className="text-sm text-gray-500">Revenue and order trends throughout the year</p>
+                <h2 className="text-base lg:text-lg font-semibold text-gray-900">Monthly Sales Performance</h2>
+                <p className="text-xs lg:text-sm text-gray-500">Revenue and order trends throughout the year</p>
               </div>
-              <Calendar className="w-5 h-5 text-gray-400" />
+              <Calendar className="w-4 h-4 lg:w-5 lg:h-5 text-gray-400" />
             </div>
           </CardHeader>
           <CardContent>
-            <div className="h-80">
+            <div className="h-64 lg:h-80">
               <ResponsiveContainer width="100%" height="100%">
                 <BarChart data={salesData}>
                   <CartesianGrid strokeDasharray="3 3" stroke="#E5E7EB" />

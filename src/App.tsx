@@ -9,14 +9,17 @@ import { Sidebar } from './components/Sidebar';
 import DashboardPage from './pages/DashboardPage';
 import ProductsPage from './pages/ProductsPage';
 import TransactionsPage from './pages/TransactionsPage';
+import SettingsPage from './pages/SettingsPage';
 import InventoryPage from './pages/InventoryPage';
 import ReportsPage from './pages/ReportsPage';
 import LoginPage from './pages/LoginPage';
+import UsersPage from './pages/UsersPage';
 
 // AppContent component that uses router hooks
 function AppContent({ onLogout }: { onLogout: () => void }) {
   const location = useLocation();
   const navigate = useNavigate();
+  const [sidebarOpen, setSidebarOpen] = useState(false);
   
   // Determine active menu item based on current route
   const getActiveMenuItem = (pathname: string) => {
@@ -26,6 +29,7 @@ function AppContent({ onLogout }: { onLogout: () => void }) {
     if (pathname === '/transactions') return 'transactions';
     if (pathname === '/inventory') return 'inventory';
     if (pathname === '/reports') return 'reports';
+    if (pathname === '/users') return 'users';
     if (pathname === '/settings') return 'settings';
     return 'dashboard';
   };
@@ -33,6 +37,9 @@ function AppContent({ onLogout }: { onLogout: () => void }) {
   const activeMenuItem = getActiveMenuItem(location.pathname);
 
   const handleMenuClick = (menuId: string) => {
+    // Close mobile sidebar when menu item is clicked
+    setSidebarOpen(false);
+    
     switch (menuId) {
       case 'dashboard':
         navigate('/dashboard');
@@ -49,6 +56,9 @@ function AppContent({ onLogout }: { onLogout: () => void }) {
       case 'reports':
         navigate('/reports');
         break;
+      case 'users':
+        navigate('/users');
+        break;
       case 'settings':
         navigate('/settings');
         break;
@@ -59,20 +69,37 @@ function AppContent({ onLogout }: { onLogout: () => void }) {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <Header onLogout={onLogout} />
-      <Sidebar activeItem={activeMenuItem} onItemClick={handleMenuClick} />
+      <Header onLogout={onLogout} onToggleSidebar={() => setSidebarOpen(!sidebarOpen)} />
+      <Sidebar 
+        activeItem={activeMenuItem} 
+        onItemClick={handleMenuClick}
+        isOpen={sidebarOpen}
+        onClose={() => setSidebarOpen(false)}
+      />
+      
+      {/* Overlay for mobile */}
+      {sidebarOpen && (
+        <div 
+          className="fixed inset-0 bg-black bg-opacity-50 z-40 lg:hidden" 
+          onClick={() => setSidebarOpen(false)}
+        />
+      )}
       
       {/* Main Content Area */}
-      <main className="ml-64 pt-20 p-8">
-        <div className="max-w-[1600px] mx-auto">
-          <Routes>
-            <Route path="/" element={<Navigate to="/dashboard" replace />} />
-            <Route path="/dashboard" element={<DashboardPage />} />
-            <Route path="/products" element={<ProductsPage />} />
-            <Route path="/transactions" element={<TransactionsPage />} />
-            <Route path="/inventory" element={<InventoryPage />} />
-            <Route path="/reports" element={<ReportsPage />} />
-          </Routes>
+      <main className="lg:ml-64 pt-16 lg:pt-20 transition-all duration-300">
+        <div className="p-4 lg:p-8">
+          <div className="max-w-[1600px] mx-auto">
+            <Routes>
+              <Route path="/" element={<Navigate to="/dashboard" replace />} />
+              <Route path="/dashboard" element={<DashboardPage />} />
+              <Route path="/products" element={<ProductsPage />} />
+              <Route path="/transactions" element={<TransactionsPage />} />
+              <Route path="/inventory" element={<InventoryPage />} />
+              <Route path="/reports" element={<ReportsPage />} />
+              <Route path="/users" element={<UsersPage />} />
+              <Route path="/settings" element={<SettingsPage/>}/>
+            </Routes>
+          </div>
         </div>
       </main>
     </div>

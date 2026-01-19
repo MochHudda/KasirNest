@@ -1,17 +1,5 @@
 export * from './models';
 
-// Core User Types
-export interface User {
-  uid: string;
-  email: string;
-  displayName?: string;
-  photoURL?: string;
-  emailVerified: boolean;
-  isAdmin: boolean;
-  createdAt: Date;
-  lastLoginAt?: Date;
-}
-
 // Store Types  
 export interface Store {
   id: string;

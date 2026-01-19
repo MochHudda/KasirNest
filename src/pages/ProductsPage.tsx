@@ -31,18 +31,19 @@ export default function ProductsPage() {
   return (
     <div>
       {/* Page Header */}
-      <div className="flex items-center justify-between mb-8">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6 lg:mb-8">
         <div>
-          <h1 className="text-2xl font-semibold text-gray-900 mb-2">Apparel Catalog</h1>
-          <p className="text-gray-600">Manage your clothing inventory and product catalog.</p>
+          <h1 className="text-xl lg:text-2xl font-semibold text-gray-900 mb-2">Apparel Catalog</h1>
+          <p className="text-sm lg:text-base text-gray-600">Manage your clothing inventory and product catalog.</p>
         </div>
-        <Button onClick={() => setShowForm(true)} icon={Plus}>
-          Add Apparel Item
+        <Button onClick={() => setShowForm(true)} icon={Plus} className="self-start sm:self-auto">
+          <span className="hidden sm:inline">Add Apparel Item</span>
+          <span className="sm:hidden">Add Item</span>
         </Button>
       </div>
 
       {showForm ? (
-        <div className="mb-8">
+        <div className="mb-6 lg:mb-8">
           <ProductForm
             productId={editingProduct?.id}
             initialData={editingProduct ? {

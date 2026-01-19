@@ -50,48 +50,48 @@ export function TopProducts() {
   return (
     <Card>
       <CardHeader>
-        <div className="flex items-center justify-between">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           <div>
-            <h2 className="text-lg font-semibold text-gray-900">Top Selling Items</h2>
-            <p className="text-sm text-gray-500">Best performing apparel this month</p>
+            <h2 className="text-base lg:text-lg font-semibold text-gray-900">Top Selling Items</h2>
+            <p className="text-xs lg:text-sm text-gray-500">Best performing apparel this month</p>
           </div>
-          <Button variant="ghost" size="sm" className="text-primary-600 hover:text-primary-700">
+          <Button variant="ghost" size="sm" className="text-primary-600 hover:text-primary-700 self-start sm:self-auto">
             View All
           </Button>
         </div>
       </CardHeader>
       
       <CardContent>
-        <div className="space-y-4">
+        <div className="space-y-3 lg:space-y-4">
           {mockProducts.map((product, index) => (
             <div
               key={product.id}
-              className="flex items-center justify-between p-4 rounded-lg hover:bg-gray-50 transition-colors"
+              className="flex items-center justify-between p-3 lg:p-4 rounded-lg hover:bg-gray-50 transition-colors"
             >
-              <div className="flex items-center gap-4 flex-1">
-                <div className="w-10 h-10 bg-primary-600/10 rounded-lg flex items-center justify-center">
-                  <span className="text-primary-600 font-semibold">#{index + 1}</span>
+              <div className="flex items-center gap-3 lg:gap-4 flex-1 min-w-0">
+                <div className="w-8 h-8 lg:w-10 lg:h-10 bg-primary-600/10 rounded-lg flex items-center justify-center flex-shrink-0">
+                  <span className="text-primary-600 font-semibold text-sm lg:text-base">#{index + 1}</span>
                 </div>
-                <div className="flex-1">
-                  <h4 className="font-medium text-gray-900">{product.name}</h4>
-                  <p className="text-sm text-gray-500">{product.category}</p>
+                <div className="flex-1 min-w-0">
+                  <h4 className="font-medium text-gray-900 text-sm lg:text-base truncate">{product.name}</h4>
+                  <p className="text-xs lg:text-sm text-gray-500">{product.category}</p>
                 </div>
               </div>
 
-              <div className="flex items-center gap-8">
+              <div className="flex items-center gap-4 lg:gap-8">
                 <div className="text-right">
-                  <p className="text-sm text-gray-500">Sales</p>
-                  <p className="font-medium text-gray-900">{product.sales}</p>
+                  <p className="text-xs lg:text-sm text-gray-500">Sales</p>
+                  <p className="font-medium text-gray-900 text-sm lg:text-base">{product.sales}</p>
+                </div>
+                <div className="text-right hidden sm:block">
+                  <p className="text-xs lg:text-sm text-gray-500">Revenue</p>
+                  <p className="font-medium text-gray-900 text-sm lg:text-base">{product.revenue}</p>
                 </div>
                 <div className="text-right">
-                  <p className="text-sm text-gray-500">Revenue</p>
-                  <p className="font-medium text-gray-900">{product.revenue}</p>
-                </div>
-                <div className="text-right">
-                  <p className="text-sm text-gray-500">Stock</p>
+                  <p className="text-xs lg:text-sm text-gray-500">Stock</p>
                   <p
                     className={cn(
-                      'font-medium',
+                      'font-medium text-sm lg:text-base',
                       product.stock < 20 ? 'text-red-600' : 'text-gray-900'
                     )}
                   >

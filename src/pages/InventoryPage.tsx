@@ -16,9 +16,9 @@ export default function InventoryPage() {
   return (
     <div>
       {/* Page Header */}
-      <div className="mb-8">
-        <h1 className="text-2xl font-semibold text-gray-900 mb-2">Inventory Management</h1>
-        <p className="text-gray-600">Monitor stock levels and manage your inventory.</p>
+      <div className="mb-6 lg:mb-8">
+        <h1 className="text-xl lg:text-2xl font-semibold text-gray-900 mb-2">Inventory Management</h1>
+        <p className="text-sm lg:text-base text-gray-600">Monitor stock levels and manage your inventory.</p>
       </div>
 
       <StockList

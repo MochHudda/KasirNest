@@ -90,10 +90,10 @@ export function StockList({ onEditProduct, onDeleteProduct }: StockListProps) {
   return (
     <Card>
       <CardHeader>
-        <div className="flex items-center justify-between mb-4">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-4 gap-3">
           <div>
-            <h2 className="text-lg font-semibent text-gray-900">Apparel Stock Management</h2>
-            <p className="text-sm text-gray-500">Monitor clothing inventory and stock levels</p>
+            <h2 className="text-base lg:text-lg font-semibent text-gray-900">Apparel Stock Management</h2>
+            <p className="text-xs lg:text-sm text-gray-500">Monitor clothing inventory and stock levels</p>
           </div>
           <div className="flex items-center gap-2">
             <Button
@@ -102,12 +102,13 @@ export function StockList({ onEditProduct, onDeleteProduct }: StockListProps) {
               onClick={() => setShowLowStock(!showLowStock)}
               icon={AlertTriangle}
             >
-              Low Stock
+              <span className="hidden sm:inline">Low Stock</span>
+              <span className="sm:hidden">Low</span>
             </Button>
           </div>
         </div>
 
-        <div className="flex flex-col sm:flex-row gap-4">
+        <div className="flex flex-col sm:flex-row gap-3 lg:gap-4">
           <div className="relative flex-1">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
             <input
@@ -158,32 +159,32 @@ export function StockList({ onEditProduct, onDeleteProduct }: StockListProps) {
               return (
                 <div
                   key={product.id}
-                  className="flex items-center justify-between p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors"
+                  className="flex flex-col sm:flex-row sm:items-center justify-between p-3 lg:p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors gap-3"
                 >
-                  <div className="flex items-center gap-4 flex-1">
+                  <div className="flex items-center gap-3 lg:gap-4 flex-1 min-w-0">
                     <div className={cn(
-                      'w-12 h-12 rounded-lg flex items-center justify-center',
+                      'w-10 h-10 lg:w-12 lg:h-12 rounded-lg flex items-center justify-center flex-shrink-0',
                       stockStatus === 'low' ? 'bg-red-100' : 
                       stockStatus === 'high' ? 'bg-yellow-100' : 'bg-green-100'
                     )}>
                       <Package className={cn(
-                        'w-6 h-6',
+                        'w-5 h-5 lg:w-6 lg:h-6',
                         stockStatus === 'low' ? 'text-red-600' : 
                         stockStatus === 'high' ? 'text-yellow-600' : 'text-green-600'
                       )} />
                     </div>
                     
-                    <div className="flex-1">
-                      <h4 className="font-medium text-gray-900">{product.name}</h4>
-                      <div className="flex items-center gap-4 text-sm text-gray-500">
+                    <div className="flex-1 min-w-0">
+                      <h4 className="font-medium text-gray-900 text-sm lg:text-base truncate">{product.name}</h4>
+                      <div className="flex items-center gap-2 lg:gap-4 text-xs lg:text-sm text-gray-500">
                         <span>{product.category}</span>
-                        {product.sku && <span>SKU: {product.sku}</span>}
+                        {product.sku && <span className="hidden sm:inline">SKU: {product.sku}</span>}
                         <span>{formatCurrency(product.price)}</span>
                       </div>
                     </div>
                   </div>
 
-                  <div className="flex items-center gap-6">
+                  <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 lg:gap-6">
                     {/* Stock Management */}
                     <div className="flex items-center gap-2">
                       <Button
@@ -191,13 +192,13 @@ export function StockList({ onEditProduct, onDeleteProduct }: StockListProps) {
                         size="sm"
                         onClick={() => handleStockUpdate(product.id, Math.max(0, product.stock - 1))}
                         disabled={product.stock <= 0}
-                        className="w-8 h-8 p-0"
+                        className="w-7 h-7 lg:w-8 lg:h-8 p-0"
                       >
-                        <Minus className="w-4 h-4" />
+                        <Minus className="w-3 h-3 lg:w-4 lg:h-4" />
                       </Button>
                       
                       <span className={cn(
-                        'px-3 py-1 rounded font-medium text-sm',
+                        'px-2 lg:px-3 py-1 rounded font-medium text-xs lg:text-sm',
                         stockStatus === 'low' ? 'bg-red-100 text-red-700' :
                         stockStatus === 'high' ? 'bg-yellow-100 text-yellow-700' : 
                         'bg-green-100 text-green-700'
@@ -209,15 +210,15 @@ export function StockList({ onEditProduct, onDeleteProduct }: StockListProps) {
                         variant="outline"
                         size="sm"
                         onClick={() => handleStockUpdate(product.id, product.stock + 1)}
-                        className="w-8 h-8 p-0"
+                        className="w-7 h-7 lg:w-8 lg:h-8 p-0"
                       >
-                        <Plus className="w-4 h-4" />
+                        <Plus className="w-3 h-3 lg:w-4 lg:h-4" />
                       </Button>
                     </div>
 
-                    {/* Stock Status Info */}
-                    <div className="text-right">
-                      <div className="text-sm text-gray-500">
+                    {/* Stock Status Info - Hidden on mobile */}
+                    <div className="text-left sm:text-right hidden sm:block">
+                      <div className="text-xs lg:text-sm text-gray-500">
                         {product.minStock && `Min: ${product.minStock}`}
                         {product.minStock && product.maxStock && ' | '}
                         {product.maxStock && `Max: ${product.maxStock}`}
@@ -225,15 +226,15 @@ export function StockList({ onEditProduct, onDeleteProduct }: StockListProps) {
                     </div>
 
                     {/* Actions */}
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-1 lg:gap-2">
                       {onEditProduct && (
                         <Button
                           variant="ghost"
                           size="sm"
                           onClick={() => onEditProduct(product)}
-                          className="w-8 h-8 p-0"
+                          className="w-7 h-7 lg:w-8 lg:h-8 p-0"
                         >
-                          <Edit className="w-4 h-4" />
+                          <Edit className="w-3 h-3 lg:w-4 lg:h-4" />
                         </Button>
                       )}
                       

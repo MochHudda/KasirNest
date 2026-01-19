@@ -25,12 +25,12 @@ export function SalesChart() {
   return (
     <Card>
       <CardHeader>
-        <div className="flex items-center justify-between">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           <div>
-            <h2 className="text-lg font-semibold text-gray-900">Sales Overview</h2>
-            <p className="text-sm text-gray-500 mt-1">Weekly sales performance</p>
+            <h2 className="text-base lg:text-lg font-semibold text-gray-900">Sales Overview</h2>
+            <p className="text-xs lg:text-sm text-gray-500 mt-1">Weekly sales performance</p>
           </div>
-          <select className="px-4 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary-500">
+          <select className="px-3 lg:px-4 py-2 border border-gray-200 rounded-lg text-xs lg:text-sm focus:outline-none focus:ring-2 focus:ring-primary-500">
             <option>Last 7 days</option>
             <option>Last 30 days</option>
             <option>Last 3 months</option>
@@ -39,7 +39,7 @@ export function SalesChart() {
       </CardHeader>
       
       <CardContent>
-        <div className="h-80">
+        <div className="h-64 lg:h-80">
           <ResponsiveContainer width="100%" height="100%">
             <LineChart data={salesData}>
               <CartesianGrid strokeDasharray="3 3" stroke="#E5E7EB" />

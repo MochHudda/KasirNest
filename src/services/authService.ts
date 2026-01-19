@@ -28,7 +28,6 @@ export class AuthService {
         displayName: displayName || firebaseUser.displayName || undefined,
         photoURL: firebaseUser.photoURL || undefined,
         emailVerified: firebaseUser.emailVerified,
-        isAdmin: false, // Default to false, can be updated by admin
         createdAt: new Date(),
         lastLoginAt: new Date()
       };
