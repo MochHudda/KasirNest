@@ -1,287 +1,176 @@
-import {
-  collection,
-  doc,
-  addDoc,
-  updateDoc,
-  deleteDoc,
-  getDoc,
-  getDocs,
-  query,
-  where,
-  orderBy,
-  onSnapshot
-} from 'firebase/firestore';
-import { db } from '../config/firebase';
+import { api } from '../utils/api';
 import { Product, ProductFormData, ApiResponse } from '../types';
 import { storeConfig } from '../config/storeSettings';
 
 export class ProductService {
-  private static getProductsCollection(storeId: string) {
-    return collection(db, 'stores', storeId, 'products');
-  }
-
   // Create new product
-  static async createProduct(productData: ProductFormData, createdBy: string): Promise<ApiResponse<Product>> {
+  static async createProduct(productData: ProductFormData): Promise<ApiResponse<Product>> {
     try {
       const storeId = storeConfig.getStoreId();
       if (!storeId) {
         throw new Error('No active store found');
       }
 
-      const now = new Date();
-      const productDoc = {
+      const payload = {
         ...productData,
         storeId,
-        isActive: true,
-        stock: productData.stock || 0,
-        createdAt: now,
-        updatedAt: now,
-        createdBy
+        isActive: true
       };
 
-      const docRef = await addDoc(this.getProductsCollection(storeId), productDoc);
-      
-      const newProduct: Product = {
-        id: docRef.id,
-        ...productDoc
-      };
-
+      const response = await api.post('/products', payload);
       return {
         success: true,
-        data: newProduct,
+        data: response.data,
         message: 'Product created successfully'
       };
     } catch (error: any) {
       return {
         success: false,
-        error: error.message
+        error: error.response?.data?.message || error.message || 'Failed to create product'
+      };
+    }
+  }
+
+  // Get single product by ID
+  static async getProduct(productId: string): Promise<ApiResponse<Product>> {
+    try {
+      const response = await api.get(`/products/${productId}`);
+      return {
+        success: true,
+        data: response.data
+      };
+    } catch (error: any) {
+      return {
+        success: false,
+        error: error.response?.data?.message || error.message || 'Failed to get product'
       };
     }
   }
 
   // Update existing product
-  static async updateProduct(productId: string, updateData: Partial<ProductFormData>): Promise<ApiResponse<Product>> {
+  static async updateProduct(productId: string, productData: Partial<ProductFormData>): Promise<ApiResponse<Product>> {
     try {
-      const storeId = storeConfig.getStoreId();
-      if (!storeId) {
-        throw new Error('No active store found');
-      }
-
-      const productRef = doc(db, 'stores', storeId, 'products', productId);
-      const updatePayload = {
-        ...updateData,
-        updatedAt: new Date()
+      const response = await api.put(`/products/${productId}`, productData);
+      return {
+        success: true,
+        data: response.data,
+        message: 'Product updated successfully'
       };
-
-      await updateDoc(productRef, updatePayload);
-      
-      // Get updated product
-      const updatedDoc = await getDoc(productRef);
-      if (updatedDoc.exists()) {
-        const updatedProduct: Product = {
-          id: updatedDoc.id,
-          ...updatedDoc.data()
-        } as Product;
-
-        return {
-          success: true,
-          data: updatedProduct,
-          message: 'Product updated successfully'
-        };
-      }
-
-      throw new Error('Product not found after update');
     } catch (error: any) {
       return {
         success: false,
-        error: error.message
+        error: error.response?.data?.message || error.message || 'Failed to update product'
       };
     }
   }
 
   // Delete product
-  static async deleteProduct(productId: string): Promise<ApiResponse<void>> {
+  static async deleteProduct(productId: string): Promise<ApiResponse<boolean>> {
     try {
-      const storeId = storeConfig.getStoreId();
-      if (!storeId) {
-        throw new Error('No active store found');
-      }
-
-      const productRef = doc(db, 'stores', storeId, 'products', productId);
-      await deleteDoc(productRef);
-
+      await api.delete(`/products/${productId}`);
       return {
         success: true,
+        data: true,
         message: 'Product deleted successfully'
       };
     } catch (error: any) {
       return {
         success: false,
-        error: error.message
+        error: error.response?.data?.message || error.message || 'Failed to delete product'
       };
     }
   }
 
-  // Get single product
-  static async getProduct(productId: string): Promise<ApiResponse<Product>> {
-    try {
-      const storeId = storeConfig.getStoreId();
-      if (!storeId) {
-        throw new Error('No active store found');
-      }
-
-      const productDoc = await getDoc(doc(db, 'stores', storeId, 'products', productId));
-      
-      if (productDoc.exists()) {
-        const product: Product = {
-          id: productDoc.id,
-          ...productDoc.data()
-        } as Product;
-
-        return {
-          success: true,
-          data: product
-        };
-      }
-
-      throw new Error('Product not found');
-    } catch (error: any) {
-      return {
-        success: false,
-        error: error.message
-      };
-    }
-  }
-
-  // Get all products for store
+  // Get all products with filters
   static async getProducts(category?: string, isActive: boolean = true): Promise<ApiResponse<Product[]>> {
     try {
-      const storeId = storeConfig.getStoreId();
-      if (!storeId) {
-        throw new Error('No active store found');
+      const params = new URLSearchParams();
+      if (category && category !== 'all') {
+        params.append('category', category);
       }
+      params.append('isActive', isActive.toString());
 
-      let q = query(
-        this.getProductsCollection(storeId),
-        where('isActive', '==', isActive),
-        orderBy('name')
-      );
-
-      if (category) {
-        q = query(q, where('category', '==', category));
-      }
-
-      const querySnapshot = await getDocs(q);
-      const products: Product[] = [];
-
-      querySnapshot.forEach((doc) => {
-        products.push({
-          id: doc.id,
-          ...doc.data()
-        } as Product);
-      });
-
+      const response = await api.get(`/products?${params.toString()}`);
       return {
         success: true,
-        data: products
+        data: response.data
       };
     } catch (error: any) {
       return {
         success: false,
-        error: error.message
+        error: error.response?.data?.message || error.message || 'Failed to get products'
       };
     }
   }
 
-  // Get low stock products
-  static async getLowStockProducts(): Promise<ApiResponse<Product[]>> {
+  // Get products with low stock
+  static async getLowStockProducts(threshold: number = 10): Promise<ApiResponse<Product[]>> {
     try {
-      const storeId = storeConfig.getStoreId();
-      if (!storeId) {
-        throw new Error('No active store found');
-      }
-
-      const q = query(
-        this.getProductsCollection(storeId),
-        where('isActive', '==', true),
-        orderBy('stock')
-      );
-
-      const querySnapshot = await getDocs(q);
-      const lowStockProducts: Product[] = [];
-
-      querySnapshot.forEach((doc) => {
-        const product = { id: doc.id, ...doc.data() } as Product;
-        if (product.minStock && product.stock <= product.minStock) {
-          lowStockProducts.push(product);
-        }
-      });
-
+      const response = await api.get(`/products?lowStock=true&threshold=${threshold}`);
       return {
         success: true,
-        data: lowStockProducts
+        data: response.data
       };
     } catch (error: any) {
       return {
         success: false,
-        error: error.message
+        error: error.response?.data?.message || error.message || 'Failed to get low stock products'
       };
     }
   }
 
-  // Update stock
-  static async updateStock(productId: string, newStock: number): Promise<ApiResponse<void>> {
+  // Update product stock
+  static async updateStock(productId: string, newStock: number): Promise<ApiResponse<Product>> {
     try {
-      const storeId = storeConfig.getStoreId();
-      if (!storeId) {
-        throw new Error('No active store found');
-      }
-
-      const productRef = doc(db, 'stores', storeId, 'products', productId);
-      
-      await updateDoc(productRef, {
-        stock: newStock,
-        updatedAt: new Date()
-      });
-
+      const response = await api.put(`/products/${productId}`, { stock: newStock });
       return {
         success: true,
+        data: response.data,
         message: 'Stock updated successfully'
       };
     } catch (error: any) {
       return {
         success: false,
-        error: error.message
+        error: error.response?.data?.message || error.message || 'Failed to update stock'
       };
     }
   }
 
-  // Subscribe to products changes
-  static subscribeToProducts(callback: (products: Product[]) => void, category?: string): () => void {
-    const storeId = storeConfig.getStoreId();
-    if (!storeId) {
-      throw new Error('No active store found');
+  // Search products
+  static async searchProducts(searchTerm: string): Promise<ApiResponse<Product[]>> {
+    try {
+      const response = await api.get(`/products?search=${encodeURIComponent(searchTerm)}`);
+      return {
+        success: true,
+        data: response.data
+      };
+    } catch (error: any) {
+      return {
+        success: false,
+        error: error.response?.data?.message || error.message || 'Failed to search products'
+      };
     }
+  }
 
-    let q = query(
-      this.getProductsCollection(storeId),
-      where('isActive', '==', true),
-      orderBy('name')
-    );
+  // Subscribe to products changes (polling implementation)
+  static subscribeToProducts(
+    callback: (products: Product[]) => void,
+    category?: string
+  ): (() => void) {
+    const interval = setInterval(async () => {
+      try {
+        const result = await this.getProducts(category);
+        if (result.success && result.data) {
+          callback(result.data);
+        }
+      } catch (error) {
+        console.error('Error fetching products:', error);
+        callback([]);
+      }
+    }, 5000); // Poll every 5 seconds
 
-    if (category) {
-      q = query(q, where('category', '==', category));
-    }
-
-    return onSnapshot(q, (snapshot) => {
-      const products: Product[] = [];
-      snapshot.forEach((doc) => {
-        products.push({
-          id: doc.id,
-          ...doc.data()
-        } as Product);
-      });
-      callback(products);
-    });
+    return () => {
+      clearInterval(interval);
+    };
   }
 }

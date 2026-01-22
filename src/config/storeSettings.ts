@@ -1,4 +1,5 @@
 import { Store, StoreSettings } from '../types';
+import { auth } from './firebase';
 
 // Default store settings
 export const defaultStoreSettings: StoreSettings = {
@@ -18,12 +19,15 @@ export const defaultStoreSettings: StoreSettings = {
   customFields: []
 };
 
-// Store configuration that can be loaded from Firestore
+// Store configuration that can be loaded from API
 export class StoreConfig {
   private static instance: StoreConfig;
   private currentStore: Store | null = null;
 
-  private constructor() {}
+  private constructor() {
+    // Try to load store from localStorage on initialization
+    this.loadFromStorage();
+  }
 
   public static getInstance(): StoreConfig {
     if (!StoreConfig.instance) {
@@ -34,6 +38,7 @@ export class StoreConfig {
 
   public setStore(store: Store): void {
     this.currentStore = store;
+    this.saveToStorage();
   }
 
   public getStore(): Store | null {
@@ -46,6 +51,29 @@ export class StoreConfig {
 
   public getStoreSettings(): StoreSettings {
     return this.currentStore?.settings || defaultStoreSettings;
+  }
+
+  public clearStore(): void {
+    this.currentStore = null;
+    localStorage.removeItem('current_store');
+  }
+
+  private saveToStorage(): void {
+    if (this.currentStore) {
+      localStorage.setItem('current_store', JSON.stringify(this.currentStore));
+    }
+  }
+
+  private loadFromStorage(): void {
+    try {
+      const storedStore = localStorage.getItem('current_store');
+      if (storedStore) {
+        this.currentStore = JSON.parse(storedStore);
+      }
+    } catch (error) {
+      console.error('Error loading store from storage:', error);
+      this.currentStore = null;
+    }
   }
 
   public isFeatureEnabled(feature: keyof StoreSettings['features']): boolean {

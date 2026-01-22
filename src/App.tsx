@@ -1,5 +1,7 @@
 import { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate, useLocation, useNavigate } from 'react-router-dom';
+import { AuthService } from './services/authService';
+import { User } from './types';
 
 // Components
 import { Header } from './components/Header';
@@ -13,10 +15,11 @@ import SettingsPage from './pages/SettingsPage';
 import InventoryPage from './pages/InventoryPage';
 import ReportsPage from './pages/ReportsPage';
 import LoginPage from './pages/LoginPage';
+import SignupPage from './pages/SignupPage';
 import UsersPage from './pages/UsersPage';
 
 // AppContent component that uses router hooks
-function AppContent({ onLogout }: { onLogout: () => void }) {
+function AppContent({ user, onLogout }: { user: User; onLogout: () => void }) {
   const location = useLocation();
   const navigate = useNavigate();
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -97,7 +100,7 @@ function AppContent({ onLogout }: { onLogout: () => void }) {
               <Route path="/inventory" element={<InventoryPage />} />
               <Route path="/reports" element={<ReportsPage />} />
               <Route path="/users" element={<UsersPage />} />
-              <Route path="/settings" element={<SettingsPage/>}/>
+              <Route path="/settings" element={<SettingsPage />} />
             </Routes>
           </div>
         </div>
@@ -106,53 +109,66 @@ function AppContent({ onLogout }: { onLogout: () => void }) {
   );
 }
 
+// Main App component
 function App() {
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
 
-  // Check authentication status on app load
   useEffect(() => {
-    const checkAuth = () => {
-      const authStatus = localStorage.getItem('isAuthenticated');
-      setIsAuthenticated(authStatus === 'true');
-      setLoading(false);
+    // Check for existing authentication
+    const checkAuth = async () => {
+      try {
+        const currentUser = await AuthService.getCurrentUser();
+        if (currentUser) {
+          setUser(currentUser);
+        }
+      } catch (error) {
+        console.error('Auth check error:', error);
+      } finally {
+        setLoading(false);
+      }
     };
-    
+
     checkAuth();
   }, []);
 
-  const handleLogin = () => {
-    setIsAuthenticated(true);
-  };
-
-  const handleLogout = () => {
-    localStorage.removeItem('isAuthenticated');
-    localStorage.removeItem('currentUser');
-    setIsAuthenticated(false);
+  const handleLogout = async () => {
+    try {
+      await AuthService.signOut();
+      setUser(null);
+    } catch (error) {
+      console.error('Logout error:', error);
+    }
   };
 
   if (loading) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
-          <div className="w-16 h-16 bg-primary-600 rounded-2xl flex items-center justify-center mx-auto mb-4">
-            <span className="text-white text-2xl font-bold">A</span>
-          </div>
-          <p className="text-gray-600">Loading ApparelPos...</p>
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto"></div>
+          <p className="mt-2 text-gray-600">Loading...</p>
         </div>
       </div>
     );
   }
 
-  // Show login page if not authenticated
-  if (!isAuthenticated) {
-    return <LoginPage onLogin={handleLogin} />;
-  }
-
-  // Show main application if authenticated
   return (
     <Router>
-      <AppContent onLogout={handleLogout} />
+      {user ? (
+        <AppContent user={user} onLogout={handleLogout} />
+      ) : (
+        <Routes>
+          <Route 
+            path="/login" 
+            element={<LoginPage onLogin={setUser} />} 
+          />
+          <Route 
+            path="/signup" 
+            element={<SignupPage onSignup={setUser} />} 
+          />
+          <Route path="*" element={<Navigate to="/login" replace />} />
+        </Routes>
+      )}
     </Router>
   );
 }

@@ -1,11 +1,17 @@
 export interface User {
-  uid: string;
+  id: string; // UUID instead of uid
+  username: string;
   email: string;
   displayName?: string;
   photoURL?: string;
   emailVerified: boolean;
+  role: 'admin' | 'manager' | 'staff';
+  globalRole?: 'admin' | 'manager' | 'staff';
+  storeRole?: 'owner' | 'admin' | 'manager' | 'staff';
+  isActive: boolean;
   createdAt: Date;
   lastLoginAt: Date;
+  joinedAt?: Date;
 }
 
 export interface Store {
@@ -45,21 +51,31 @@ export interface CustomField {
 export interface Product {
   id: string;
   storeId: string;
+  categoryId?: string;
+  supplierId?: string;
   name: string;
   description?: string;
-  category: string;
+  category: string; // Category name for display
   price: number;
   cost?: number;
   sku?: string;
   barcode?: string;
   stock: number;
-  minStock?: number;
+  minStock: number;
   maxStock?: number;
+  unitOfMeasure?: string;
+  weight?: number;
+  images?: string[];
+  tags?: string[];
   isActive: boolean;
+  trackInventory: boolean;
+  allowNegativeStock?: boolean;
+  wholesalePrice?: number;
+  retailPrice?: number;
   customFields?: Record<string, any>;
   createdAt: Date;
   updatedAt: Date;
-  createdBy: string;
+  createdBy?: string;
 }
 
 export interface ProductFormData {
@@ -73,10 +89,14 @@ export interface ProductFormData {
   stock: number;
   minStock?: number;
   maxStock?: number;
+  unitOfMeasure?: string;
+  weight?: number;
+  tags?: string[];
   customFields?: Record<string, any>;
 }
 
 export interface TransactionItem {
+  id?: string;
   productId: string;
   productName: string;
   quantity: number;
@@ -88,22 +108,30 @@ export interface TransactionItem {
 export interface Transaction {
   id: string;
   storeId: string;
+  customerId?: string;
   transactionNumber: string;
-  type: 'sale' | 'return' | 'void';
-  status: 'pending' | 'completed' | 'cancelled';
-  items: TransactionItem[];
+  type: 'sale' | 'return' | 'adjustment' | 'void';
+  status: 'pending' | 'completed' | 'cancelled' | 'refunded' | 'voided';
+  items?: TransactionItem[];
   subtotal: number;
   tax: number;
   discount: number;
   total: number;
-  paymentMethod: 'cash' | 'card' | 'digital' | 'credit';
-  paymentStatus: 'pending' | 'paid' | 'refunded';
+  paymentMethod?: 'cash' | 'card' | 'digital' | 'credit' | 'split';
+  paymentStatus: 'pending' | 'paid' | 'partial' | 'failed' | 'refunded';
+  amountPaid?: number;
+  amountChange?: number;
+  amountDue?: number;
+  receiptNumber?: string;
+  receiptPrinted?: boolean;
+  originalTransactionId?: string;
+  returnReason?: string;
   notes?: string;
   customFields?: Record<string, any>;
   customer?: CustomerInfo;
   createdAt: Date;
   updatedAt: Date;
-  createdBy: string;
+  createdBy?: string;
 }
 
 export interface CustomerInfo {

@@ -1,96 +1,113 @@
-import { 
-  signInWithEmailAndPassword, 
-  createUserWithEmailAndPassword,
-  signOut,
-  onAuthStateChanged,
-  User as FirebaseUser,
-  updateProfile
-} from 'firebase/auth';
-import { doc, setDoc, getDoc } from 'firebase/firestore';
-import { auth, db } from '../config/firebase';
-import { User } from '../types';
+import { api } from '../utils/api';
+import { User, ApiResponse } from '../types';
+
+export interface LoginCredentials {
+  email: string;
+  password: string;
+}
+
+export interface SignupData {
+  firstName: string;
+  lastName: string;
+  email: string;
+  password: string;
+  phone?: string;
+  storeName: string;
+  storeType: string;
+}
 
 export class AuthService {
-  // Sign up new user
-  static async signUp(email: string, password: string, displayName?: string): Promise<User> {
+  // Sign in with email and password
+  static async signInWithEmailAndPassword(credentials: LoginCredentials): Promise<ApiResponse<User>> {
     try {
-      const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-      const firebaseUser = userCredential.user;
-
-      if (displayName) {
-        await updateProfile(firebaseUser, { displayName });
-      }
-
-      // Create user document in Firestore
-      const userData: User = {
-        uid: firebaseUser.uid,
-        email: firebaseUser.email!,
-        displayName: displayName || firebaseUser.displayName || undefined,
-        photoURL: firebaseUser.photoURL || undefined,
-        emailVerified: firebaseUser.emailVerified,
-        createdAt: new Date(),
-        lastLoginAt: new Date()
-      };
-
-      await setDoc(doc(db, 'users', firebaseUser.uid), userData);
+      const response = await api.post('/auth/login', credentials);
       
-      return userData;
+      // Store token and user data
+      localStorage.setItem('token', response.data.token);
+      localStorage.setItem('user', JSON.stringify(response.data.user));
+      
+      return {
+        success: true,
+        data: response.data.user,
+        message: 'Login successful'
+      };
     } catch (error: any) {
-      throw new Error(error.message);
+      return {
+        success: false,
+        error: error.response?.data?.message || error.message || 'Login failed'
+      };
     }
   }
 
-  // Sign in user
-  static async signIn(email: string, password: string): Promise<User> {
+  // Create new user account
+  static async createUserWithEmailAndPassword(signupData: SignupData): Promise<ApiResponse<User>> {
     try {
-      const userCredential = await signInWithEmailAndPassword(auth, email, password);
-      const firebaseUser = userCredential.user;
+      const response = await api.post('/auth/register', signupData);
+      
+      // Store token and user data
+      localStorage.setItem('token', response.data.token);
+      localStorage.setItem('user', JSON.stringify(response.data.user));
+      
+      return {
+        success: true,
+        data: response.data.user,
+        message: 'Account created successfully'
+      };
+    } catch (error: any) {
+      return {
+        success: false,
+        error: error.response?.data?.message || error.message || 'Registration failed'
+      };
+    }
+  }
 
-      // Update last login time
-      const userRef = doc(db, 'users', firebaseUser.uid);
-      await setDoc(userRef, { lastLoginAt: new Date() }, { merge: true });
-
-      const userDoc = await getDoc(userRef);
-      if (userDoc.exists()) {
-        return userDoc.data() as User;
+  // Get current user from storage/token
+  static async getCurrentUser(): Promise<User | null> {
+    try {
+      const token = localStorage.getItem('token');
+      if (!token) {
+        return null;
       }
 
-      throw new Error('User document not found');
+      const response = await api.get('/auth/me');
+      return response.data;
+    } catch (error) {
+      // If token is invalid, clear storage
+      localStorage.removeItem('token');
+      localStorage.removeItem('user');
+      return null;
+    }
+  }
+
+  // Update user profile
+  static async updateProfile(userId: string, updateData: Partial<User>): Promise<ApiResponse<User>> {
+    try {
+      const response = await api.put(`/auth/profile/${userId}`, updateData);
+      
+      // Update stored user data
+      localStorage.setItem('user', JSON.stringify(response.data));
+      
+      return {
+        success: true,
+        data: response.data,
+        message: 'Profile updated successfully'
+      };
     } catch (error: any) {
-      throw new Error(error.message);
+      return {
+        success: false,
+        error: error.response?.data?.message || error.message || 'Profile update failed'
+      };
     }
   }
 
   // Sign out user
   static async signOut(): Promise<void> {
     try {
-      await signOut(auth);
+      // Clear local storage
+      localStorage.removeItem('token');
+      localStorage.removeItem('user');
     } catch (error: any) {
       throw new Error(error.message);
-    }
-  }
-
-  // Get current user
-  static getCurrentUser(): FirebaseUser | null {
-    return auth.currentUser;
-  }
-
-  // Listen to auth state changes
-  static onAuthStateChange(callback: (user: FirebaseUser | null) => void): () => void {
-    return onAuthStateChanged(auth, callback);
-  }
-
-  // Get user data from Firestore
-  static async getUserData(uid: string): Promise<User | null> {
-    try {
-      const userDoc = await getDoc(doc(db, 'users', uid));
-      if (userDoc.exists()) {
-        return userDoc.data() as User;
-      }
-      return null;
-    } catch (error: any) {
-      console.error('Error getting user data:', error);
-      return null;
     }
   }
 }
